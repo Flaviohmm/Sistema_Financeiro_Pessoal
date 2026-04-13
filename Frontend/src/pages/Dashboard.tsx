@@ -37,6 +37,8 @@ export default function Dashboard() {
                         <th className="p-3">Descrição</th>
                         <th>Valor</th>
                         <th>Tipo</th>
+                        <th>Categoria</th>
+                        <th>Data</th>
                     </tr>
                 </thead>
 
@@ -46,6 +48,8 @@ export default function Dashboard() {
                             <td className="p-3">{t.description}</td>
                             <td>R$ {t.amount}</td>
                             <td>{t.type}</td>
+                            <td>{t.category}</td>
+                            <td>{t.date}</td>
                         </tr>
                     ))}
                 </tbody>
