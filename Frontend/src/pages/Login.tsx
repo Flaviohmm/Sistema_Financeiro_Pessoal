@@ -9,7 +9,7 @@ export default function Login() {
         e.preventDefault();
         try {
             const res = await api.post("/auth/login", form);
-            localStorage.setItem("token", res.data);
+            localStorage.setItem("token", res.data.token);
             window.location.href = "/";
         } catch {
             setError("Credenciais inválidas");
