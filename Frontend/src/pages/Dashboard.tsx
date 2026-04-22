@@ -6,6 +6,13 @@ export default function Dashboard() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
 
     useEffect(() => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            window.location.href = "/login";
+            return;
+        }
+
         api.get("/transactions").then((res) => {
             setTransactions(res.data);
         });
@@ -21,9 +28,21 @@ export default function Dashboard() {
 
     const balance = income - expenses;
 
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+    };
+
     return (
         <div className="p-6 space-y-6 bg-gray-900 min-h-screen text-white">
             <h1 className="text-3xl font-bold">Dashboard</h1>
+
+            <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl text-white"
+            >
+                Sair
+            </button>
 
             <div className="grid grid-cols-3 gap-4">
                 <Card title="Saldo" value={balance} />
