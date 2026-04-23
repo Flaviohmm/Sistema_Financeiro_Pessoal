@@ -4,12 +4,16 @@ import { Transaction } from "../types/transaction";
 import {
     BarChart,
     Bar,
+    PieChart,
+    Pie,
+    Cell,
     XAxis,
     YAxis,
     Tooltip,
     ResponsiveContainer,
     Legend
 } from "recharts";
+import { translateCategory } from "../utils/category";
 
 export default function Dashboard() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -62,6 +66,33 @@ export default function Dashboard() {
     }, {});
 
     const chartData = Object.values(groupedData);
+
+    const categoryData = Object.values(
+        transactions
+            .filter(t => t.type === "EXPENSE")
+            .reduce((acc: any, t) => {
+                const category = translateCategory(t.category);
+
+                if (!acc[category]) {
+                    acc[category] = {
+                        name: category,
+                        value: 0
+                    };
+                }
+
+                acc[category].value += t.amount;
+                return acc;
+            }, {})
+    );
+
+    const COLORS = [
+        "#ef4444",      // vermelho
+        "#f97316",      // laranja
+        "#eab308",      // amarelo
+        "#22c55e",      // verde
+        "#3b82f6",      // azul
+        "#a855f7",      // roxo
+    ];
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -126,7 +157,7 @@ export default function Dashboard() {
                                     {t.type === "INCOME" ? "Receita" : "Despesa"}
                                 </span>
                             </td>
-                            <td>{t.category}</td>
+                            <td>{translateCategory(t.category)}</td>
                             <td>{formatDate(t.date)}</td>
                         </tr>
                     ))}
@@ -148,6 +179,40 @@ export default function Dashboard() {
                         <Bar dataKey="Receitas" fill="#22c55e" radius={[8, 8, 0, 0]} />
                         <Bar dataKey="Despesas" fill="#ef4444" radius={[8, 8, 0, 0]} />
                     </BarChart>
+                </ResponsiveContainer>
+            </div>
+
+            <div className="bg-gray-800 p-6 rounded-xl shadow mt-5">
+                <h2 className="text-xl font-semibold mb-4">
+                    Gastos por Categoria
+                </h2>
+
+                <ResponsiveContainer width="100%" height={500}>
+                    <PieChart>
+                        <Pie
+                            data={categoryData}
+                            dataKey="value"
+                            nameKey={"name"}
+                            outerRadius={100}
+                            label={({ name, value, percent }) => {
+                                if (!percent) return "";
+
+                                return `${name}: ${value.toLocaleString("pt-BR", {
+                                    style: "currency",
+                                    currency: "BRL"
+                                })} (${(percent * 100).toFixed(0)}%)`;
+                            }}
+                        >
+                            {categoryData.map((_, index) => (
+                                <Cell
+                                    key={index}
+                                    fill={COLORS[index % COLORS.length]}
+                                />
+                            ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                    </PieChart>
                 </ResponsiveContainer>
             </div>
         </div>
