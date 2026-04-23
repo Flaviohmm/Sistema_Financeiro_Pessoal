@@ -78,8 +78,26 @@ export default function Dashboard() {
                     {transactions.map(t => (
                         <tr key={t.id} className="border-b border-gray-700">
                             <td className="p-3">{t.description}</td>
-                            <td>{formatCurrency(t.amount)}</td>
-                            <td>{t.type}</td>
+                            <td
+                                className={
+                                    t.type === "INCOME"
+                                        ? "text-green-400 font-semibold"
+                                        : "text-red-400 font-semibold"
+                                }
+                            >
+                                {formatCurrency(t.amount)}
+                            </td>
+                            <td>
+                                <span
+                                    className={
+                                        t.type === "INCOME"
+                                            ? "bg-green-500/20 text-green-400 px-2 py-1 rounded-lg text-sm"
+                                            : "bg-red-500/20 text-red-400 px-2 py-1 rounded-lg text-sm"
+                                    }
+                                >
+                                    {t.type === "INCOME" ? "Receita" : "Despesa"}
+                                </span>
+                            </td>
                             <td>{t.category}</td>
                             <td>{formatDate(t.date)}</td>
                         </tr>
