@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import { Transaction } from "../types/transaction";
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    Tooltip,
+    ResponsiveContainer,
+    Legend
+} from "recharts";
 
 export default function Dashboard() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -39,6 +48,21 @@ export default function Dashboard() {
 
     const balance = income - expenses;
 
+    const groupedData = transactions.reduce((acc: any, t) => {
+        const month = new Date(t.date).toLocaleString("pt-BR", { month: "short" });
+
+        if (!acc[month]) {
+            acc[month] = { name: month, Receitas: 0, Despesas: 0 };
+        }
+
+        if (t.type === "INCOME") acc[month].Receitas += t.amount;
+        else acc[month].Despesas += t.amount;
+
+        return acc;
+    }, {});
+
+    const chartData = Object.values(groupedData);
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         window.location.href = "/login";
@@ -48,6 +72,10 @@ export default function Dashboard() {
         <div className="p-6 space-y-6 bg-gray-900 min-h-screen text-white">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold">Dashboard</h1>
+
+                <a href="/transaction" className="bg-amber-600 text-amber-100 px-4 py-2 rounded-2xl">
+                    + Transação
+                </a>
 
                 <button
                     onClick={handleLogout}
@@ -105,9 +133,23 @@ export default function Dashboard() {
                 </tbody>
             </table>
 
-            <a href="/transaction" className="bg-amber-600 text-amber-100 px-4 py-2 rounded-2xl">
-                + Transação
-            </a>
+
+
+            <div className="bg-gray-800 p-6 rounded-xl shadow mt-5">
+                <h2 className="text-xl font-semibold mb-4">Visão Financeira</h2>
+
+                <ResponsiveContainer width="100%" height={500}>
+                    <BarChart data={chartData}>
+                        <XAxis dataKey="name" stroke="#ccc" />
+                        <YAxis stroke="#ccc" />
+                        <Tooltip />
+                        <Legend />
+
+                        <Bar dataKey="Receitas" fill="#22c55e" radius={[8, 8, 0, 0]} />
+                        <Bar dataKey="Despesas" fill="#ef4444" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
         </div>
     );
 }
